@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board-dto';
 import { BoardRepository } from './board.repository';
 import { Board } from './board.entity';
+import { BoardStatus } from './board-status.enum';
 
 @Injectable()
 export class BoardsService {
@@ -9,6 +10,9 @@ export class BoardsService {
         private boardRepository: BoardRepository,
     ) { }
 
+    async getAllBoards(): Promise<Board[]> {
+        return this.boardRepository.find();
+    }
     // getAllBoards(): Board[] {
     //   return this.boards;
     // }
@@ -36,7 +40,7 @@ export class BoardsService {
 
 
         if (!found) {
-            throw new NotFoundException(`Can't find with id ${id} `)
+            throw new NotFoundException(`Can't find with id ${id} `);
         }
 
         return found;
@@ -51,11 +55,28 @@ export class BoardsService {
     //     return found
     // }
 
+    async deleteBoard(id: number): Promise<void> {
+        const result = await this.boardRepository.delete(id);
+
+        if (result.affected === 0) {
+            throw new NotFoundException(`Can't find Board with id ${id} `);
+        }
+    }
+
     // //return값을 주지 않을 것이기 때문에 void 사용
     // deleteBoard(id: string): void {
     //     const found = this.getBoardByID(id);
     //     this.boards = this.boards.filter((board) => board.id !== found.id);
     // }
+
+    async updateBoardStatus(id: number, status: BoardStatus): Promise<Board> {
+        const board = await this.getBoardById(id);
+
+        board.status = status;
+        await this.boardRepository.save(board);
+
+        return board
+    }
 
     // updateBoardStatus(id: string, status: BoardStatus): Board {
     //     const board = this.getBoardByID(id);

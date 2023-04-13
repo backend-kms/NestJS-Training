@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { BoardStatus } from './board-status.enum';
 import { Board } from './board.entity';
 import { BoardsService } from './boards.service';
 import { CreateBoardDto } from './dto/create-board-dto';
@@ -8,6 +9,10 @@ import { BoardStatusValidationPipe } from './pipes/board-status-validation.pipe'
 export class BoardsController {
     constructor(private boardService: BoardsService) { }
 
+    @Get()
+    getAllTask(): Promise<Board[]> {
+        return this.boardService.getAllBoards();
+    }
     // @Get('/')
     // getAllBoard(): Board[] {
     //     return this.boardService.getAllBoards();
@@ -43,10 +48,23 @@ export class BoardsController {
     //     return this.boardService.getBoardByID(id);
     // }
 
+    @Delete('/:id')
+    // ParseIntPipe: 메소드로 오는 파라미터가 숫자로 잘 되어 오는지 확인하고, 그렇지 않으면 에러 발생 시킴
+    deleteBoard(@Param('id', ParseIntPipe) id): Promise<void> {
+        return this.boardService.deleteBoard(id)
+    }
+
     // @Delete('/:id')
     // deleteBoard(@Param('id') id: string): void {
     //     this.boardService.deleteBoard(id);
     // }
+
+    @Patch('/:id/status')
+    updateBoardStatus(
+        @Param('id', ParseIntPipe) id: number,
+        @Body('status', BoardStatusValidationPipe) status: BoardStatus) {
+        return this.boardService.updateBoardStatus(id, status);
+    }
 
     // @Patch('/:id/status')
     // updateBoardStatus(
