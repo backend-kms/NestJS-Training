@@ -1,5 +1,7 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/get-user.decorator';
+import { User } from 'src/auth/user.entity';
 import { BoardStatus } from './board-status.enum';
 import { Board } from './board.entity';
 import { BoardsService } from './boards.service';
@@ -12,8 +14,10 @@ export class BoardsController {
     constructor(private boardService: BoardsService) { }
 
     @Get()
-    getAllTask(): Promise<Board[]> {
-        return this.boardService.getAllBoards();
+    getAllTask(
+        @GetUser() user: User
+    ): Promise<Board[]> {
+        return this.boardService.getAllBoards(user);
     }
     // @Get('/')
     // getAllBoard(): Board[] {
@@ -24,9 +28,9 @@ export class BoardsController {
     @Post()
     @UsePipes(ValidationPipe)
     createBoard(
-        @Body() createBoardDto: CreateBoardDto
-    ): Promise<Board> {
-        return this.boardService.createBoard(createBoardDto);
+        @Body() createBoardDto: CreateBoardDto,
+        @GetUser() user: User): Promise<Board> {
+        return this.boardService.createBoard(createBoardDto, user);
     }
 
 
@@ -52,8 +56,10 @@ export class BoardsController {
 
     @Delete('/:id')
     // ParseIntPipe: 메소드로 오는 파라미터가 숫자로 잘 되어 오는지 확인하고, 그렇지 않으면 에러 발생 시킴
-    deleteBoard(@Param('id', ParseIntPipe) id): Promise<void> {
-        return this.boardService.deleteBoard(id)
+    deleteBoard(@Param('id', ParseIntPipe) id,
+        @GetUser() user: User
+    ): Promise<void> {
+        return this.boardService.deleteBoard(id, user)
     }
 
     // @Delete('/:id')
