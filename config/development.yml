@@ -1,0 +1,9 @@
+db:
+  host: 'localhost'
+  username: 'postgres'
+  password: 'postgres'
+  synchronize: true
+  # synchronize: 실행할때마다 변경된 사항을 리프레쉬
+
+jwt:
+  secret: 'Secret1234'
